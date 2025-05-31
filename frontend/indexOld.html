@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Analysis Dashboard</title>
+    
+    <!-- Shoelace CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.1/cdn/themes/light.css" />
+    
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="./src/styles.css">
+    
+    <!-- Shoelace JS with icon configuration -->
+    <script type="module">
+        import { setBasePath } from 'https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.1/cdn/utilities/base-path.js';
+        setBasePath('https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.1/cdn/');
+    </script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.1/cdn/shoelace-autoloader.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <div>
+                <h1>🧠 Code Analysis Dashboard</h1>
+                <p>PostgreSQL + Vector Search powered code intelligence</p>
+            </div>
+            <div class="header-controls">
+                <sl-switch id="auto-refresh">Auto-refresh</sl-switch>
+                <sl-button id="refresh-btn" variant="default" size="small">
+                    <sl-icon name="arrow-clockwise"></sl-icon>
+                    Refresh
+                </sl-button>
+            </div>
+        </div>
+        
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Progress Card -->
+            <sl-card class="progress-card" id="progress-card">
+                <div slot="header">
+                    <h2>📊 Enrichment Progress</h2>
+                    <sl-badge variant="primary" id="progress-badge">Loading...</sl-badge>
+                </div>
+                <div id="progress-content" class="card-content">
+                    <!-- Progress metrics will be inserted here -->
+                </div>
+            </sl-card>
+            
+            <!-- Search Card -->
+            <sl-card class="search-card">
+                <div slot="header">
+                    <h2>🔍 Code Search</h2>
+                    <p>Search through enriched code summaries</p>
+                </div>
+                <div class="card-content">
+                    <div class="search-container">
+                        <sl-input 
+                            id="search-input" 
+                            placeholder="Search for code (e.g., 'payment', 'authentication', 'error handling')"
+                            clearable
+                        >
+                            <sl-icon name="search" slot="prefix"></sl-icon>
+                        </sl-input>
+                        <sl-button id="search-btn" variant="primary">
+                            <sl-icon name="search"></sl-icon>
+                            Search
+                        </sl-button>
+                    </div>
+                    <div id="search-results" class="search-results">
+                        <!-- Search results will be inserted here -->
+                    </div>
+                </div>
+            </sl-card>
+            
+            <!-- Functions Card -->
+            <sl-card class="functions-card">
+                <div slot="header">
+                    <h2>🔥 Most Complex Functions</h2>
+                    <p>Functions that might need attention</p>
+                </div>
+                <div id="functions-content" class="card-content">
+                    <!-- Functions list will be inserted here -->
+                </div>
+            </sl-card>
+            
+            <!-- Analytics Card -->
+            <sl-card class="analytics-card">
+                <div slot="header">
+                    <h2>📈 Technical Debt Analysis</h2>
+                    <p>Functions that might need refactoring</p>
+                </div>
+                <div id="analytics-content" class="card-content">
+                    <!-- Analytics content will be inserted here -->
+                </div>
+            </sl-card>
+        </div>
+    </div>
+    
+    <!-- Main JavaScript -->
+    <script type="module" src="./src/main.js"></script>
+</body>
+</html>

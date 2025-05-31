@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" class="sl-theme-dark">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Semantic Stacktrace Explorer</title>
+
+    <script type="module">
+    import { setBasePath } from 'https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.1/cdn/utilities/base-path.js';
+    setBasePath('https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.1/cdn/');
+    </script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.1/cdn/shoelace-autoloader.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.1/cdn/themes/dark.css" />
+    <link rel="stylesheet" href="./src/styles.css" />
+    <link rel="stylesheet" href="./src/github-dark.min.css" />
+  </head>
+  <body>
+
+    <sl-tab-group>
+      <sl-tab slot="nav" panel="dashboard">Dashboard</sl-tab>
+      <sl-tab slot="nav" panel="explorer">Explorer</sl-tab>
+      <sl-tab slot="nav" panel="search">Search</sl-tab>
+      <sl-tab slot="nav" panel="status">System Status</sl-tab>
+
+      <sl-tab-panel name="dashboard">This is the general tab panel.</sl-tab-panel>
+      <sl-tab-panel name="explorer">This is the general tab panel.</sl-tab-panel>
+      <sl-tab-panel name="search">
+        <sl-card class="search-card" >
+          <sl-textarea 
+            placeholder="Paste your stacktrace or code snippet here..." 
+            resize="auto"
+            id="search-input"
+            rows="2"
+            value="src/QueryString.php::_decode">
+            src/QueryString.php::_decode
+          </sl-textarea>
+          <sl-button slot="footer" variant="primary" class="search-btn" id="search-btn">Search</sl-button>
+
+          <sl-switch id="fuzzy">Fuzzy search</sl-switch>
+        </sl-card>
+
+
+        <div id="results">
+          <!-- Tree View -->
+          <div class="panel">
+            <sl-tree>
+              <sl-tree-item expanded>
+                main()
+                <sl-tree-item>handleLogin()</sl-tree-item>
+                <sl-tree-item>renderUI()</sl-tree-item>
+              </sl-tree-item>
+            </sl-tree>
+          </div>
+
+          <!-- Source Code View -->
+          <div class="panel">
+            <sl-tab-group>
+              <sl-tab slot="nav" panel="code">Function Source</sl-tab>
+              <sl-tab slot="nav" panel="code" id="function-meta"></sl-tab>
+
+              <sl-tab-panel name="code" id="code">
+                <div id="function-meta" style="margin-bottom: 0.5rem;"></div>
+                <pre><code class="php" >// Function body will appear here</code></pre>
+              </sl-tab-panel>
+
+            </sl-tab-group>
+          </div>
+
+          <!-- Summary View -->
+          <div class="panel">
+            <sl-tab-group>
+              <sl-tab slot="nav" panel="summary">Summary</sl-tab>
+              <sl-tab-panel name="summary">
+                <div id="search-results" class="search-results">
+                  <!-- Search results will be inserted here -->
+                </div>
+              </sl-tab-panel>
+            </sl-tab-group>
+          </div>
+        </div>
+
+      </sl-tab-panel>
+      <sl-tab-panel name="status">
+
+
+        <sl-card class="progress-card" id="progress-card">
+          <div id="progress-content" class="card-content">
+            <!-- Progress metrics will be inserted here -->
+          </div>
+
+          <div class="header-controls">
+            <sl-switch id="auto-refresh">Auto-refresh</sl-switch>
+            <sl-button id="refresh-btn" variant="default" size="small">
+              <sl-icon name="arrow-clockwise"></sl-icon>
+              Refresh
+            </sl-button>
+          </div>
+        </sl-card>
+
+        <div>
+
+          <sl-card class="functions-card">
+            <div slot="header">
+              <h2>🔥 Most Complex Functions</h2>
+              <p>Functions that might need attention</p>
+            </div>
+            <div id="functions-content" class="card-content">
+              <!-- Functions list will be inserted here -->
+            </div>
+          </sl-card>
+
+          <sl-card class="analytics-card">
+            <div slot="header">
+              <h2>📈 Technical Debt Analysis</h2>
+              <p>Functions that might need refactoring</p>
+            </div>
+            <div id="analytics-content" class="card-content">
+              <!-- Analytics content will be inserted here -->
+            </div>
+          </sl-card>
+
+        </div>
+      </sl-tab-panel>
+    </sl-tab-group> <!-- 🔷 Header with enrichment stats -->
+
+
+    <script type="module" src="./src/main.js"></script>
+    <script src="./src/highlight.min.js"></script>
+    <script src="./src/php.min.js"></script>
+    <script src="./src/highlightjs-line-numbers.min.js"></script>
+  </body>
+</html>

@@ -1,0 +1,159 @@
+version: '3.8'
+
+services:
+  # PostgreSQL with pgvector extension
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: codeanalysis_db
+    environment:
+      POSTGRES_DB: codeanalysis
+      POSTGRES_USER: analyzer
+      POSTGRES_PASSWORD: secure_password_change_me
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init_v2.sql:/docker-entrypoint-initdb.d/01_init.sql
+      - ./sql/seed_v2.sql:/docker-entrypoint-initdb.d/02_seed.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U analyzer -d codeanalysis"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Rust AST parser service
+  parser:
+    build: 
+      context: ./rust-parser
+      dockerfile: Dockerfile
+    container_name: codeanalysis_parser
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://analyzer:secure_password_change_me@postgres:5432/codeanalysis
+      - RUST_LOG=info
+    volumes:
+      - ./code-corpus:/workspace/code:ro  # Read-only source code
+      - ./output:/workspace/output        # For any debug outputs
+    command: ["./target/release/php-ast-parser", "/workspace/code"]
+    restart: "no"  # Run once, don't restart
+    profiles:
+      - parser  # Only start when explicitly requested
+
+  # Python enrichment service
+  enricher:
+    build:
+      context: ./python-enricher
+      dockerfile: Dockerfile
+    container_name: codeanalysis_enricher
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://analyzer:secure_password_change_me@postgres:5432/codeanalysis
+      - LLM_ENDPOINT=http://host.docker.internal:1234/v1/chat/completions
+      - EMBED_MODEL_PATH=/app/models
+      - BATCH_SIZE=20
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./models:/app/models:ro
+      - ./python-enricher/src:/app/src    # For development hot-reload
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: ["python", "src/enricher.py"]
+    restart: "no"
+    profiles:
+      - enrichment
+
+  # FastAPI backend service
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: codeanalysis_api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://analyzer:secure_password_change_me@postgres:5432/codeanalysis
+      - EMBED_MODEL_PATH=/app/models
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+      - LLM_ENDPOINT=http://host.docker.internal:1234/v1/chat/completions
+    volumes:
+      - ./models:/app/models:ro
+      - ./api/src:/app/src                # For development hot-reload
+    ports:
+      - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Enable access to host services
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: codeanalysis_frontend
+    depends_on:
+      - api
+    ports:
+      - "5173:5173"  # Vite's default port
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+    - VITE_API_URL=http://localhost:8000
+
+    restart: unless-stopped
+
+  # Redis for caching (optional, for production performance)
+  redis:
+    image: redis:7-alpine
+    container_name: codeanalysis_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    profiles:
+      - production  # Only start with --profile production
+
+  # pgAdmin for database management (development)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: codeanalysis_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+      PGADMIN_CONFIG_WTF_CSRF_ENABLED: 'False'
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    profiles:
+      - development  # Only start with --profile development
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  default:
+    name: codeanalysis_network

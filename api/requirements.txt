@@ -1,0 +1,11 @@
+asyncpg==0.29.0
+fastapi==0.104.1
+numpy==1.24.3
+psycopg2-binary==2.9.9
+pydantic==2.5.0
+python-dotenv==1.0.0
+python-multipart==0.0.6
+sentence-transformers==2.2.2
+torch==2.0.1
+transformers==4.32.1
+uvicorn[standard]==0.24.0
