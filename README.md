@@ -142,7 +142,7 @@ Configure model path and endpoint in `python-enricher/src/config.py`.
 
 ## 📜 License
 
-MIT / Apache — Add yours.
+MIT
 
 ---
 
