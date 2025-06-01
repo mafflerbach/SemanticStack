@@ -923,7 +923,7 @@ sl-button {
       flex-direction: column;
       gap: 1rem;
     }
-    #results {
+    #results, #file_tree {
       display: grid;
       grid-template-columns: 1fr 2fr 1.5fr;
       gap: 1rem;

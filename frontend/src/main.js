@@ -111,7 +111,7 @@ function renderProgressContent(progress) {
 }
 
 function renderTreeFromSearch(results) {
-    const tree = document.querySelector('sl-tree');
+    const tree = document.getElementById('function-tree');
     if (!tree) return;
 
     const summaries = results.filter(r => r.type === 'function_summary');
@@ -201,7 +201,7 @@ async function loadFunctionCode(functionId) {
     try {
         const response = await fetchAPI(`/code/${functionId}`);
         const { code, start_line, end_line, function_name, parameters } = response;
-        let virtStart_line = start_line +0
+        let virtStart_line = start_line +0 
         window.currentStartLine = virtStart_line;
         console.log("start_line", virtStart_line)
 

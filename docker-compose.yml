@@ -59,7 +59,6 @@ services:
       - BATCH_SIZE=20
       - PYTHONUNBUFFERED=1
     volumes:
-      - ./models:/app/models:ro
       - ./python-enricher/src:/app/src    # For development hot-reload
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -68,7 +67,6 @@ services:
     profiles:
       - enrichment
 
-  # FastAPI backend service
   api:
     build:
       context: ./api
@@ -82,13 +80,14 @@ services:
       - EMBED_MODEL_PATH=/app/models
       - CORS_ORIGINS=http://localhost:5173,http://localhost:3000
       - LLM_ENDPOINT=http://host.docker.internal:1234/v1/chat/completions
+      - PYTHONPATH=/app
     volumes:
       - ./models:/app/models:ro
-      - ./api/src:/app/src                # For development hot-reload
+      - ./api/src:/app/app:rw                # Mount source for hot-reload
     ports:
       - "8000:8000"
     extra_hosts:
-      - "host.docker.internal:host-gateway"  # Enable access to host services
+      - "host.docker.internal:host-gateway"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s

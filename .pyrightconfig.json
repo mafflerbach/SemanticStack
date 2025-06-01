@@ -1,0 +1,18 @@
+
+{
+  "include": [
+    "api/src",
+    "python-enricher/src"
+  ],
+  "exclude": [
+    "frontend",
+    "images",
+    "rust-parser",
+    "sql",
+    "**/__pycache__"
+  ],
+  "reportMissingImports": true,
+  "typeCheckingMode": "basic",
+  "venvPath": ".",
+  "venv": ".venv"
+}
