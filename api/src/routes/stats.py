@@ -1,12 +1,18 @@
+
 from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any, Tuple
 from .functions import get_db, get_async_db
 
-from .models import SearchResult, ProgressStats
-
 router = APIRouter(prefix="", tags=["stats"])
 
+
+class ProgressStats(BaseModel):
+    total_chunks: int
+    enriched_chunks: int
+    pending_chunks: int
+    avg_complexity: Optional[float] = None
+    avg_impact: Optional[float] = None
 
 # Stats endpoints
 @router.get("/stats")
